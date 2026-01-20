@@ -1,3 +1,21 @@
+# About this project
+
+This is a vibe-coding project. 
+
+Almost everything in this repo is not my work, so be cautious about it.
+
+## Motivation
+
+I want to spend my days while my phone's powered off but I don't want to miss important messages from my friends.
+
+I wanted a TUI iMessage client on my Linux computer, just for myself.
+
+## You want LLM generated README?
+
+The following is the LLM generated README content:
+
+----
+
 # iMessage Lightweight CLI (WIP)
 
 This workspace hosts a personal iMessage CLI client for Linux plus a macOS registration generator.
