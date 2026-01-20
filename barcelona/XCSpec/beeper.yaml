@@ -1,0 +1,89 @@
+targets:
+  # Beeper
+  BarcelonaMautrixIPC:
+    group: Beeper
+    templates:
+      - BLFramework
+    sources:
+      - path: ../Beeper/BarcelonaMautrixIPC
+        excludes:
+          - "**/*_Tests.swift"
+    scheme:
+      testTargets:
+        - barcelona-mautrix-tests
+    dependencies:
+      - package: Sentry
+      - package: ERBufferedStream
+      - target: Barcelona
+        embed: true
+        link: true
+      - package: swift-log
+        product: Logging
+  barcelona-mautrix:
+    group: Beeper
+    type: tool
+    platform: macOS
+    productNameFromSettings: true
+    sources:
+      - ../Beeper/barcelona-mautrix
+    scheme: {}
+    settings:
+      base:
+        CODE_SIGN_ENTITLEMENTS: Beeper/barcelona-mautrix/barcelona-mautrix.entitlements
+        PRODUCT_BUNDLE_IDENTIFIER: com.apple.iChat
+        PRODUCT_NAME: barcelona-mautrix
+        PRODUCT_MODULE_NAME: barcelona_mautrix
+        CREATE_INFOPLIST_SECTION_IN_BINARY: YES
+        MACOSX_DEPLOYMENT_TARGET: "11.0"
+    info:
+      path: ../Beeper/barcelona-mautrix/Info.plist
+      properties:
+        CFBundleVersion: ${GIT_TAG}
+        CFBundleIdentifier: com.beeper.barcelona-mautrix
+    dependencies:
+      - target: Barcelona
+        embed: true
+        link: true
+      - target: BarcelonaMautrixIPC
+        embed: true
+        link: true
+      - package: Sentry
+      - package: swift-log
+        product: Logging
+  barcelona-mautrix-tests:
+    group: Beeper
+    templates:
+      - BLTest
+    templateAttributes:
+      test_host: barcelona-mautrix-tests-host
+    sources:
+      - ../Beeper/BarcelonaTest
+    info:
+      path: ../Beeper/BarcelonaTest/Info.plist
+    dependencies:
+      - target: Barcelona
+        embed: true
+        link: true
+      - target: BarcelonaMautrixIPC
+        embed: true
+        link: true
+  barcelona-mautrix-tests-host:
+    group: Beeper
+    templates:
+      - BLTestHost
+    templateAttributes:
+      entitlements: Beeper/BarcelonaTest/entitlements.plist
+  BarcelonaMautrixIPCTests:
+    type: bundle.unit-test
+    platform: macOS
+    settings:
+      base:
+        MACOSX_DEPLOYMENT_TARGET: "13.0"
+    dependencies:
+      - target: BarcelonaMautrixIPC
+        embed: true
+        link: true
+    sources:
+      - path: ../Beeper/BarcelonaMautrixIPC
+        includes:
+          - "**/*_Tests.swift"

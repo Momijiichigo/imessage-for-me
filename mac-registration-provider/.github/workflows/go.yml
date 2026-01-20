@@ -1,0 +1,78 @@
+name: Go
+
+on:
+  push:
+
+env:
+  GO_VERSION: "1.21"
+
+jobs:
+  build-arm64:
+    runs-on: macos-13-xlarge
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go ${{ env.GO_VERSION }}
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+
+      - name: Build
+        run: MACOSX_DEPLOYMENT_TARGET=11.0 go build -v -ldflags "-X main.Commit=${{ github.sha }}"
+
+      - name: Run the binary
+        run: ./mac-registration-provider -once
+
+      - name: Install lint dependencies
+        run: |
+          go install golang.org/x/tools/cmd/goimports@latest
+          go install honnef.co/go/tools/cmd/staticcheck@latest
+          export PATH="$HOME/go/bin:$PATH"
+
+      - name: Run pre-commit
+        uses: pre-commit/action@v3.0.0
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mac-registration-provider-arm64
+          path: mac-registration-provider
+          if-no-files-found: error
+
+  build-x86:
+    runs-on: macos-11
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go ${{ env.GO_VERSION }}
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+
+      - name: Build
+        run: MACOSX_DEPLOYMENT_TARGET=10.13 go build -v -ldflags "-X main.Commit=${{ github.sha }}"
+
+      - name: Run the binary
+        run: ./mac-registration-provider -once
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mac-registration-provider-x86
+          path: mac-registration-provider
+          if-no-files-found: error
+
+  build-universal:
+    runs-on: macos-13
+    needs: [build-arm64, build-x86]
+    steps:
+      - uses: actions/download-artifact@v4
+      - name: Build universal binary
+        run: lipo -create -output mac-registration-provider-universal mac-registration-provider-x86/mac-registration-provider mac-registration-provider-arm64/mac-registration-provider
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mac-registration-provider-universal
+          path: mac-registration-provider-universal
+          if-no-files-found: error

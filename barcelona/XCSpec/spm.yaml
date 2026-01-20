@@ -1,0 +1,43 @@
+packages:
+  BarcelonaIPC:
+    url: https://github.com/open-imcore/BarcelonaIPC
+    from: 1.0.3
+  GRDB:
+    url: https://github.com/groue/GRDB.swift
+    from: 4.14.0
+  Swime:
+    url: https://github.com/sendyhalim/Swime
+    from: 3.0.7
+  Swog:
+    url: https://github.com/ericrabil/swog
+    from: 1.0.9
+  Gzip:
+    url: https://github.com/1024jp/GzipSwift
+    from: 5.1.1
+  AnyCodable:
+    url: https://github.com/Flight-School/AnyCodable
+    from: 0.6.1
+  InterposeKit:
+    url: https://github.com/steipete/InterposeKit
+    branch: master
+  XCTHarness:
+    url: https://github.com/EricRabil/XCTHarness
+    from: 1.0.0
+  ERBufferedStream:
+    url: https://github.com/EricRabil/ERBufferedStream
+    from: 1.0.4
+  Sentry:
+    url: https://github.com/getsentry/sentry-cocoa
+    exactVersion: 8.2.0
+  Paris:
+    url: https://github.com/beeper/Paris
+    revision: "8be38648042be76fa25cb1f514c65966b3cea0c5"
+  SwiftNIO:
+    url: https://github.com/apple/swift-nio
+    from: 2.0.0
+  swift-log:
+    url: https://github.com/apple/swift-log
+    from: 1.0.0
+  SwiftCLI:
+    url: https://github.com/jakeheis/SwiftCLI
+    from: 6.0.2

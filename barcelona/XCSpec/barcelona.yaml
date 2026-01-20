@@ -1,0 +1,72 @@
+targets:
+  # Core
+  Barcelona:
+    group: Core
+    templates:
+      - BLFramework
+    sources:
+      - ../Core/Barcelona
+    dependencies:
+      - package: Swime
+      - package: Swog
+      - package: AnyCodable
+      - package: Gzip
+      - package: InterposeKit
+      - package: Sentry
+      - package: SwiftCLI
+      - package: SwiftNIO
+        product: NIO
+      - package: SwiftNIO
+        product: NIOFoundationCompat
+      - package: Paris
+        product: CommonUtilities 
+      - package: Paris
+        product: CommunicationsFilter
+      - package: Paris
+        product: DataDetectorsCore
+      - package: Paris
+        product: DigitalTouchShared
+      - package: Paris
+        product: LinkPresentationPrivate
+      - package: Paris
+        product: IDS
+      - package: Paris
+        product: IMDaemonCore
+      - package: Paris
+        product: IMCore
+      - package: Paris
+        product: IMSharedUtilities
+      - package: Paris
+        product: IMFoundation
+      - package: Paris
+        product: IMDPersistence
+      - package: Paris
+        product: IMDMessageServices
+      - package: swift-log
+        product: Logging
+      - target: BarcelonaDB
+        embed: true
+        link: true
+      - target: Extensions
+        embed: true
+        link: true
+  BarcelonaDB:
+    group: Core
+    templates:
+      - BLFramework
+    sources:
+      - ../Core/BarcelonaDB
+    dependencies:
+      - package: GRDB
+      - package: Sentry
+      - package: swift-log
+        product: Logging
+      - target: Extensions
+        embed: true
+        link: true
+  Extensions:
+    group: Core
+    templates:
+      - BLFramework
+    sources:
+      - ../Core/Extensions

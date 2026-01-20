@@ -1,0 +1,36 @@
+name: Build
+
+on:
+  push:
+
+jobs:
+  mac-builder:
+    name: Barcelona macOS
+    runs-on: self-hosted
+
+    steps:
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: "14.1"
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up cache
+        id: cache-build
+        uses: actions/cache@v3
+        with:
+          path: |
+            $GITHUB_WORKSPACE/SourcePackages
+            $GITHUB_WORKSPACE/macos_build
+            /Users/runner/Library/Developer/Xcode/DerivedData
+          key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
+
+      - name: Build Barcelona for macOS
+        run: make mautrix-macos
+
+      - name: Upload barcelona-mautrix artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: darwin-barcelona-mautrix
+          path: Build/macOS/Build/Products/Release/barcelona-mautrix

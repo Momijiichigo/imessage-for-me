@@ -1,0 +1,11 @@
+.DS_Store
+xcuserdata/
+DRM
+build/
+macos_build
+macos_staging
+archive
+SourcePackages
+*.xcodeproj
+Beeper/barcelona-mautrix/Info.plist
+.idea

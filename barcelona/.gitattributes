@@ -1,0 +1,2 @@
+Frameworks/** linguist-vendored
+vendor/xcodegen filter=lfs diff=lfs merge=lfs -text
