@@ -1,0 +1,77 @@
+# Operating System
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*~
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+*.prof
+*.cov
+coverage.txt
+go.work
+go.work.sum
+
+# Go binaries (project-specific)
+imessage-client/imessage-client
+mac-registration-provider/mac-registration-provider
+registration-relay/registration-relay
+imessage/imessage
+
+# Build artifacts
+bin/
+dist/
+build/
+out/
+
+# Sensitive configuration and state files
+registration-data.json
+**/registration-data.json
+state.json
+**/state.json
+config.yaml
+**/config.yaml
+!example-config.yaml
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Testing
+testdata/output/
+.test/
+
+# Dependencies (if vendored locally beyond committed vendor/)
+# Uncomment if needed:
+# vendor/

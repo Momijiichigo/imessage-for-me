@@ -1,0 +1,21 @@
+# Binary
+imessage-client
+
+# Configuration and state files
+registration-data.json
+state.json
+config.yaml
+!example-config.yaml
+
+# IDE
+.idea/
+.vscode/
+
+# Go
+*.test
+*.out
+*.prof
+*.cov
+
+# Logs
+*.log
