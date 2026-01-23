@@ -7,6 +7,7 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -50,7 +51,15 @@ func (h RealHandshaker) Handshake(ctx context.Context, reg *config.RegistrationD
 	}
 
 	// Step 4: Initialize IDS config with device info from registration
+	// Use the device UUID from registration data if available, otherwise generate new one
 	deviceUUID := uuid.New()
+	if reg.DeviceInfo.UniqueDeviceID != "" {
+		parsedUUID, err := uuid.Parse(reg.DeviceInfo.UniqueDeviceID)
+		if err == nil {
+			deviceUUID = parsedUUID
+		}
+	}
+	
 	idsConfig := &ids.Config{
 		IDSEncryptionKey: idsEncryptionKey,
 		IDSSigningKey:    idsSigningKey,
@@ -145,13 +154,11 @@ func (h RealHandshaker) buildRegisterRequest(
 	encKey *rsa.PrivateKey,
 	signKey *ecdsa.PrivateKey,
 ) *ids.RegisterReq {
-	// Marshal public keys for client data
-	encPubKey := &encKey.PublicKey
-	signPubKey := &signKey.PublicKey
-
-	// Encode public keys (simplified - full implementation needs proper encoding)
-	_ = encPubKey
-	_ = signPubKey
+	// Build public identity for registration
+	publicIdentity := &ids.UserIdentity{
+		SigningKey:    &signKey.PublicKey,
+		EncryptionKey: &encKey.PublicKey,
+	}
 
 	return &ids.RegisterReq{
 		DeviceName:      ids.DeviceName,
@@ -161,6 +168,7 @@ func (h RealHandshaker) buildRegisterRequest(
 		SoftwareVersion: cfg.SoftwareBuildID,
 		PrivateDeviceData: ids.PrivateDeviceData{
 			AP:              "0", // Mac
+			D:               fmt.Sprintf("%.6f", time.Now().Sub(ids.AppleEpoch).Seconds()), // Timestamp since Apple epoch
 			DT:              1,   // Device type: Mac
 			GT:              "0",
 			H:               "1",
@@ -183,13 +191,20 @@ func (h RealHandshaker) buildRegisterRequest(
 			Service: string(apns.TopicMadrid),
 			SubServices: []string{
 				// Core iMessage sub-services
-				"com.apple.private.alloy.gamecenter.imessage",
-				"com.apple.private.alloy.safetymonitor",
-				"com.apple.private.alloy.biz",
-				"com.apple.private.alloy.sms",
+				string(apns.TopicAlloyGamecenteriMessage),
+				string(apns.TopicAlloySafetyMonitor),
+				string(apns.TopicAlloyBiz),
+				string(apns.TopicAlloySMS),
+				string(apns.TopicAlloySafetyMonitorOwnAccount),
+				string(apns.TopicAlloyGelato),
+				string(apns.TopicAlloyAskTo),
 			},
 			Users: []ids.RegisterServiceUser{{
 				ClientData: map[string]interface{}{
+					// Legacy pair encryption (required)
+					"public-message-identity-key":     publicIdentity.ToBytes(),
+					"public-message-identity-version": 2,
+
 					// Basic capabilities
 					"supports-ack-v1":              true,
 					"supports-audio-messaging-v2":  true,
@@ -205,10 +220,6 @@ func (h RealHandshaker) buildRegisterRequest(
 					"supports-media-v2":            true,
 					"supports-photos-extension-v1": true,
 					"supports-st-v1":               true,
-
-					// TODO: Add public key encoding
-					// "public-message-identity-key": encodePublicIdentity(encKey, signKey),
-					// "public-message-identity-version": 2,
 				},
 				URIs: []ids.Handle{
 					// Will be populated by Apple based on device

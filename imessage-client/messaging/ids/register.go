@@ -18,7 +18,7 @@ const ProtocolVersion = "1640"
 
 // IDS API endpoints
 const (
-	idsRegisterURL   = "https://profile.ess.apple.com/WebObjects/VCProfileService.woa/wa/authenticateDS"
+	idsRegisterURL   = "https://identity.ess.apple.com/WebObjects/TDIdentityService.woa/wa/register"
 	idsAuthDevURL    = "https://identity.ess.apple.com/WebObjects/TDIdentityService.woa/wa/authenticateDevice"
 	idsGetHandlesURL = "https://profile.ess.apple.com/WebObjects/VCProfileService.woa/wa/idsGetHandles"
 )
@@ -159,16 +159,19 @@ type DeviceAuthResp struct {
 // IDSOSVersion returns a formatted OS version string for IDS registration.
 func (c *Config) IDSOSVersion() string {
 	// Format: "macOS,13.4.1,22F82" or similar
-	if c.PushCert == nil {
-		return ""
+	name := c.SoftwareName
+	if name == "" {
+		name = "macOS"
 	}
-	// Parse from config or construct
-	name := "macOS" // Default
-	if len(c.PushCert.Subject.CommonName) > 0 {
-		// Extract from cert if available
-		name = c.PushCert.Subject.CommonName
+	version := c.SoftwareVersion
+	if version == "" {
+		version = "13.4.1"
 	}
-	return fmt.Sprintf("%s,%s,%s", name, "13.4.1", "22F82")
+	build := c.SoftwareBuildID
+	if build == "" {
+		build = "22F82"
+	}
+	return fmt.Sprintf("%s,%s,%s", name, version, build)
 }
 
 // CombinedVersion returns the combined software version string.

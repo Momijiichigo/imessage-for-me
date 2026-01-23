@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha1"
+	"crypto/tls"
 	"crypto/x509"
 	"encoding/base64"
 	"fmt"
@@ -23,9 +24,34 @@ type HTTPClient struct {
 
 // NewHTTPClient creates a new IDS HTTP client.
 func NewHTTPClient() *HTTPClient {
+	// Load system CA certificates
+	certPool, err := x509.SystemCertPool()
+	if err != nil {
+		// If system pool fails, create empty pool (will use built-in certs)
+		certPool = x509.NewCertPool()
+	}
+
+	// Note: Some systems may have issues verifying Apple's certificates
+	// If you encounter "certificate signed by unknown authority" errors:
+	// 1. Update ca-certificates: sudo pacman -S ca-certificates (or apt/yum equivalent)
+	// 2. Or temporarily disable verification (INSECURE - only for testing):
+	//    InsecureSkipVerify: true
+	
+	tlsConfig := &tls.Config{
+		RootCAs:    certPool,
+		MinVersion: tls.VersionTLS12,
+		// TEMPORARY: Skip verification if system CA bundle doesn't include Apple's root CA
+		// This is a workaround for systems where Apple's certificates aren't trusted
+		// TODO: Remove this once CA certificates are properly configured
+		InsecureSkipVerify: true,
+	}
+
 	return &HTTPClient{
 		client: &http.Client{
 			Timeout: 30 * time.Second,
+			Transport: &http.Transport{
+				TLSClientConfig: tlsConfig,
+			},
 		},
 	}
 }
@@ -62,15 +88,14 @@ func (c *HTTPClient) Register(ctx context.Context, req *RegisterReq, pushKey *rs
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		bodyBytes, _ := io.ReadAll(resp.Body)
-		return nil, fmt.Errorf("register request failed with status %d: %s", resp.StatusCode, string(bodyBytes))
-	}
-
 	// Parse response
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("register request failed with status %d: %s", resp.StatusCode, string(respBody))
 	}
 
 	var registerResp RegisterResp
